@@ -1,21 +1,76 @@
 {block content}
 
-<a n:href="edit $post->id">Upravit</a><br/>
-<a n:href="remove $post->id">Smazat</a>
-<div class="date">{$post->created_at|date:'F j, Y'}</div>
-<h2 n:block="title"><b>{$post->title}</b> od uživatele <b>{$post->author}</b></h2>
-<div class="post">{$post->content}</div>
+<h1 n:block="title">{$post->title}</h1>
+<table class="post">
+  <tr>
+    <td>
+      <a n:href="edit $post->id" n:if="$user->loggedIn" name="edit">Upravit</a>  
+    </td>
+    <td>
+      <a n:href="remove $post->id" n:if="$user->loggedIn" name="remove">Smazat</a>
+    </td>
+  </tr>
+</table>
 
+<div class="post">
+  <table>
+    <tr>
+      <td rowspan="4" id="post-image-2" style="{if ($post->link != NULL)}background-image: url({$post->link}){else}background: {App\Presenters\PostPresenter::randomColor()}{/if}"></td>
+      <td id="nd">Titulek:</td>
+      <td>{$post->title}</td>
+    </tr>
+    <tr>
+      <td>Anotace:</td>
+      <td>{$post->subtitle}</td>
+    </tr>
+    <tr>
+      <td>Autor:</td>
+      <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if}</td>
+    </tr>
+    <tr>
+      <td>Datum:</td>
+      <td>{$post->created_at|date:'F j, Y H:m'}</td>
+    </tr>
+    <tr>
+      <td colspan="3">
+        <div class="post-div">
+          {$post->content}
+        </div>
+      </td>
+    </tr>      
+  </table>
+</div>
 
-<hr/>
-<h2>Comments</h2>
+<h1>Komentáře k příspěvku</h1>
 <div class="comments">
   {foreach $comments as $comment}
-    <p><b><a href="mailto:{$comment->email}" n:tag-if="$comment->email">{$comment->name}</a></b> said:</p>
-    <div>{$comment->content}</div>
+    <table>
+      <tr>
+        <td>
+          {if ($user->loggedIn)}
+            <a n:href="removeComment $comment->id">Odstranit</a>   
+          {/if}
+          {if ($comment->username == NULL)}
+            Neznámý
+          {else}
+            <a href="mailto:{$comment->email}">{$comment->username}</a>
+          {/if}
+        </td>
+        <td>{$comment->ip}</td>
+        <td>{$comment->created_at|date:'F j, Y H:m'}</td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          {$comment->content}
+        </td>  
+      </tr>
+    </table>
   {/foreach}
 </div>
 
-<hr/>
-<h2>Post new comment</h2>
-{control commentForm}
+{if ($user->isLoggedIn())}
+  <h1>Přidat komentář</h1>
+    <div class="standard-form">
+      {control commentForm}
+  </div>
+{/if}

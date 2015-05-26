@@ -22,7 +22,4 @@ session:
 services:
 	- App\Forms\SignFormFactory
 	router: App\RouterFactory::createRouter
-  
-security:
-	users:
-		admin: secret # user 'admin', password 'secret'
+	authenticator: App\Presenters\UserAuthenticator

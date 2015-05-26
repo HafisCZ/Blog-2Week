@@ -1,0 +1,41 @@
+{block content}
+
+<h1 n:block="title">{$author->username}</h1>
+
+  <table class="author">
+    <tr>
+      <td id="author-image" rowspan="4" style="background-image: url({if ($author->avatar == NULL)}{App\Presenters\PostPresenter::_DEFAULT_AVATAR_}{else}{$author->avatar}{/if})"></td>
+    </tr>
+    <tr>
+      <td id="nd" style="height: 2em">Email:</td>
+      <td><a href="mailto:{$author->email}">{$author->email}</a></td>
+    </tr>
+    <tr>
+      <td id="nd" style="height: 2em">Avatar:</td>
+      <td>{if ($author->avatar == NULL)}Ne{else}<a href="{$author->avatar}">Ano</a>{/if}</a></td>
+    </tr>
+    <tr>
+      <td id="nd">Popis:</td>
+      <td colspan="1" class="standard-form-3">
+          {if ($author->description == NULL)}
+            Autor nepřidal žádný popisek ...
+          {else}
+            {$author->description}
+          {/if} 
+      </td>
+    </tr>
+  </table>
+  
+  <h1>Příspěvky:</h1>
+  <div class="list-list">
+    <div n:foreach="$posts as $post" class="list-posts">
+      <div>{$post->created_at|date:'F j, Y H:m:s'} <a href="{link Post:show $post->id}">{$post->title}</a></div>
+    </div>
+  </div>
+  
+  <h1>Komentáře:</h1>
+  <div class="list-list">
+    <div n:foreach="$comments as $comment" class="list-posts">
+      <div>{$comment->created_at|date:'F j, Y H:m:s'} <a href="{link Post:show $comment->post_id}">{$comment->post->title}</a>: {Nette\Utils\Strings::truncate($comment->content, 50 ,'...')}</div>
+    </div>
+  </div>

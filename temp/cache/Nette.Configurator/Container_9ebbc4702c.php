@@ -20,7 +20,8 @@ class Container_9ebbc4702c extends Nette\DI\Container
 					'http.context',
 					'security.user',
 					'session.session',
-					'26_App_Forms_SignFormFactory',
+					'25_App_Forms_SignFormFactory',
+					'authenticator',
 					'application.1',
 					'application.2',
 					'application.3',
@@ -67,14 +68,15 @@ class Container_9ebbc4702c extends Nette\DI\Container
 			'Nette\Application\IRouter' => array(1 => array('routing.router')),
 			'Nette\Security\IUserStorage' => array(1 => array('security.userStorage')),
 			'Nette\Security\User' => array(1 => array('security.user')),
-			'Nette\Security\IAuthenticator' => array(1 => array('security.authenticator')),
 			'Nette\Http\Session' => array(1 => array('session.session')),
 			'Tracy\ILogger' => array(1 => array('tracy.logger')),
 			'Tracy\BlueScreen' => array(1 => array('tracy.blueScreen')),
 			'Tracy\Bar' => array(1 => array('tracy.bar')),
 			'App\Forms\SignFormFactory' => array(
-				1 => array('26_App_Forms_SignFormFactory'),
+				1 => array('25_App_Forms_SignFormFactory'),
 			),
+			'Nette\Security\IAuthenticator' => array(1 => array('authenticator')),
+			'App\Presenters\UserAuthenticator' => array(1 => array('authenticator')),
 			'App\Presenters\BasePresenter' => array(
 				array(
 					'application.1',
@@ -190,7 +192,7 @@ class Container_9ebbc4702c extends Nette\DI\Container
 			'Nette\DI\Container' => array(1 => array('container')),
 		),
 		'services' => array(
-			'26_App_Forms_SignFormFactory' => 'App\Forms\SignFormFactory',
+			'25_App_Forms_SignFormFactory' => 'App\Forms\SignFormFactory',
 			'application.1' => 'App\Presenters\ErrorPresenter',
 			'application.2' => 'App\Presenters\HomepagePresenter',
 			'application.3' => 'App\Presenters\PostPresenter',
@@ -200,6 +202,7 @@ class Container_9ebbc4702c extends Nette\DI\Container
 			'application.application' => 'Nette\Application\Application',
 			'application.linkGenerator' => 'Nette\Application\LinkGenerator',
 			'application.presenterFactory' => 'Nette\Application\IPresenterFactory',
+			'authenticator' => 'App\Presenters\UserAuthenticator',
 			'cache.journal' => 'Nette\Caching\Storages\IJournal',
 			'cache.storage' => 'Nette\Caching\IStorage',
 			'container' => 'Nette\DI\Container',
@@ -216,7 +219,6 @@ class Container_9ebbc4702c extends Nette\DI\Container
 			'mail.mailer' => 'Nette\Mail\IMailer',
 			'nette.latte' => 'Latte\Engine',
 			'routing.router' => 'Nette\Application\IRouter',
-			'security.authenticator' => 'Nette\Security\IAuthenticator',
 			'security.user' => 'Nette\Security\User',
 			'security.userStorage' => 'Nette\Security\IUserStorage',
 			'session.session' => 'Nette\Http\Session',
@@ -248,7 +250,6 @@ class Container_9ebbc4702c extends Nette\DI\Container
 			'database.default' => 'database.default.connection',
 			'httpRequest' => 'http.request',
 			'httpResponse' => 'http.response',
-			'nette.authenticator' => 'security.authenticator',
 			'nette.cacheJournal' => 'cache.journal',
 			'nette.database.default' => 'database.default',
 			'nette.database.default.context' => 'database.default.context',
@@ -284,7 +285,7 @@ class Container_9ebbc4702c extends Nette\DI\Container
 	/**
 	 * @return App\Forms\SignFormFactory
 	 */
-	public function createService__26_App_Forms_SignFormFactory()
+	public function createService__25_App_Forms_SignFormFactory()
 	{
 		$service = new App\Forms\SignFormFactory($this->getService('security.user'));
 		return $service;
@@ -403,6 +404,16 @@ class Container_9ebbc4702c extends Nette\DI\Container
 		$service->setMapping(array(
 			'*' => 'App\*Module\Presenters\*Presenter',
 		));
+		return $service;
+	}
+
+
+	/**
+	 * @return App\Presenters\UserAuthenticator
+	 */
+	public function createServiceAuthenticator()
+	{
+		$service = new App\Presenters\UserAuthenticator($this->getService('database.default.context'));
 		return $service;
 	}
 
@@ -583,21 +594,11 @@ class Container_9ebbc4702c extends Nette\DI\Container
 
 
 	/**
-	 * @return Nette\Security\IAuthenticator
-	 */
-	public function createServiceSecurity__authenticator()
-	{
-		$service = new Nette\Security\SimpleAuthenticator(array('admin' => 'secret'), array('admin' => NULL));
-		return $service;
-	}
-
-
-	/**
 	 * @return Nette\Security\User
 	 */
 	public function createServiceSecurity__user()
 	{
-		$service = new Nette\Security\User($this->getService('security.userStorage'), $this->getService('security.authenticator'));
+		$service = new Nette\Security\User($this->getService('security.userStorage'), $this->getService('authenticator'));
 		$this->getService('tracy.bar')->addPanel(new Nette\Bridges\SecurityTracy\UserPanel($service));
 		return $service;
 	}

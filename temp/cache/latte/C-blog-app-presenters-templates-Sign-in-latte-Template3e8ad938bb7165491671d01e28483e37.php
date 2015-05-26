@@ -14,18 +14,39 @@ list($_b, $_g, $_l) = $template->initialize('be317dbd96', 'html')
 if (!function_exists($_b->blocks['content'][] = '_lb55f0455d8d_content')) { function _lb55f0455d8d_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ;call_user_func(reset($_b->blocks['title']), $_b, get_defined_vars())  ?>
 
+<table class="sign">
+  <tr>
+    <td>
+      <h1>Přihlášení</h1>
+    </td>
+    <td>
+      <h1>Zapomenuté heslo</h1>
+    </td>
+    <td>
+      <h1>Registrace</h1>
+    </td>
+  </tr>
+  <tr class="standard-form-2">
+    <td>
 <?php $_l->tmp = $_control->getComponent("signInForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
+    </td>
+    <td>
+<?php $_l->tmp = $_control->getComponent("forgottenForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
+    </td>
+    <td>
+<?php $_l->tmp = $_control->getComponent("registrationForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
+    </td>
+  </tr>
+</table>
 
-<h1>Registrace</h1>
-
-<?php $_l->tmp = $_control->getComponent("registrationForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ;
+<?php
 }}
 
 //
 // block title
 //
 if (!function_exists($_b->blocks['title'][] = '_lbfe4c7d2266_title')) { function _lbfe4c7d2266_title($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
-?><h1>Přihlášení</h1>
+?><h1 id="none">Přihlášení / Registrace</h1>
 <?php
 }}
 

@@ -12,38 +12,98 @@ list($_b, $_g, $_l) = $template->initialize('c6cdb40c69', 'html')
 // block content
 //
 if (!function_exists($_b->blocks['content'][] = '_lb13870af431_content')) { function _lb13870af431_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
-?><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("edit", array($post->id)), ENT_COMPAT) ?>
-">Upravit</a><br>
-<a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("remove", array($post->id)), ENT_COMPAT) ?>
+;call_user_func(reset($_b->blocks['title']), $_b, get_defined_vars())  ?>
+<table class="post">
+  <tr>
+    <td>
+<?php if ($user->loggedIn) { ?>      <a name="edit" href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("edit", array($post->id)), ENT_COMPAT) ?>
+">Upravit</a>  
+<?php } ?>
+    </td>
+    <td>
+<?php if ($user->loggedIn) { ?>      <a name="remove" href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("remove", array($post->id)), ENT_COMPAT) ?>
 ">Smazat</a>
-<div class="date"><?php echo Latte\Runtime\Filters::escapeHtml($template->date($post->created_at, 'F j, Y'), ENT_NOQUOTES) ?></div>
-<?php call_user_func(reset($_b->blocks['title']), $_b, get_defined_vars())  ?>
-<div class="post"><?php echo Latte\Runtime\Filters::escapeHtml($post->content, ENT_NOQUOTES) ?></div>
+<?php } ?>
+    </td>
+  </tr>
+</table>
 
+<div class="post">
+  <table>
+    <tr>
+      <td rowspan="4" id="post-image-2" style="<?php if (($post->link != NULL)) { ?>
+background-image: url(<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::escapeCss($post->link), ENT_COMPAT) ?>
+)<?php } else { ?>background: <?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::escapeCss(App\Presenters\PostPresenter::randomColor()), ENT_COMPAT) ;} ?>"></td>
+      <td id="nd">Titulek:</td>
+      <td><?php echo Latte\Runtime\Filters::escapeHtml($post->title, ENT_NOQUOTES) ?></td>
+    </tr>
+    <tr>
+      <td>Anotace:</td>
+      <td><?php echo Latte\Runtime\Filters::escapeHtml($post->subtitle, ENT_NOQUOTES) ?></td>
+    </tr>
+    <tr>
+      <td>Autor:</td>
+      <td><?php if (($post->username == NULL)) { ?>Neznámý<?php } else { ?><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Post:author", array($post->username)), ENT_COMPAT) ?>
+"><?php echo Latte\Runtime\Filters::escapeHtml($post->username, ENT_NOQUOTES) ?>
+</a><?php } ?></td>
+    </tr>
+    <tr>
+      <td>Datum:</td>
+      <td><?php echo Latte\Runtime\Filters::escapeHtml($template->date($post->created_at, 'F j, Y H:m'), ENT_NOQUOTES) ?></td>
+    </tr>
+    <tr>
+      <td colspan="3">
+        <div class="post-div">
+          <?php echo Latte\Runtime\Filters::escapeHtml($post->content, ENT_NOQUOTES) ?>
 
-<hr>
-<h2>Comments</h2>
+        </div>
+      </td>
+    </tr>      
+  </table>
+</div>
+
+<h1>Komentáře k příspěvku</h1>
 <div class="comments">
 <?php $iterations = 0; foreach ($comments as $comment) { ?>
-    <p><b><?php if ($_l->ifs[] = ($comment->email)) { ?><a href="mailto:<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($comment->email), ENT_COMPAT) ?>
-"><?php } echo Latte\Runtime\Filters::escapeHtml($comment->name, ENT_NOQUOTES) ;if (array_pop($_l->ifs)) { ?>
-</a><?php } ?>
-</b> said:</p>
-    <div><?php echo Latte\Runtime\Filters::escapeHtml($comment->content, ENT_NOQUOTES) ?></div>
+    <table>
+      <tr>
+        <td>
+<?php if (($user->loggedIn)) { ?>
+            <a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("removeComment", array($comment->id)), ENT_COMPAT) ?>
+">Odstranit</a>   
+<?php } if (($comment->username == NULL)) { ?>
+            Neznámý
+<?php } else { ?>
+            <a href="mailto:<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($comment->email), ENT_COMPAT) ?>
+"><?php echo Latte\Runtime\Filters::escapeHtml($comment->username, ENT_NOQUOTES) ?></a>
+<?php } ?>
+        </td>
+        <td><?php echo Latte\Runtime\Filters::escapeHtml($comment->ip, ENT_NOQUOTES) ?></td>
+        <td><?php echo Latte\Runtime\Filters::escapeHtml($template->date($comment->created_at, 'F j, Y H:m'), ENT_NOQUOTES) ?></td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <?php echo Latte\Runtime\Filters::escapeHtml($comment->content, ENT_NOQUOTES) ?>
+
+        </td>  
+      </tr>
+    </table>
 <?php $iterations++; } ?>
 </div>
 
-<hr>
-<h2>Post new comment</h2>
-<?php $_l->tmp = $_control->getComponent("commentForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ;
+<?php if (($user->isLoggedIn())) { ?>
+  <h1>Přidat komentář</h1>
+    <div class="standard-form">
+<?php $_l->tmp = $_control->getComponent("commentForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
+  </div>
+<?php } 
 }}
 
 //
 // block title
 //
 if (!function_exists($_b->blocks['title'][] = '_lb12c573ae0d_title')) { function _lb12c573ae0d_title($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
-?><h2><b><?php echo Latte\Runtime\Filters::escapeHtml($post->title, ENT_NOQUOTES) ?>
-</b> od uživatele <b><?php echo Latte\Runtime\Filters::escapeHtml($post->author, ENT_NOQUOTES) ?></b></h2>
+?><h1><?php echo Latte\Runtime\Filters::escapeHtml($post->title, ENT_NOQUOTES) ?></h1>
 <?php
 }}
 

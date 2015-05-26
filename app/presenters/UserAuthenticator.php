@@ -4,28 +4,32 @@ namespace App\Presenters;
 
 use Nette\Security as NS;
 
-class UserAuthenticator extends Nette\Object implements NS\IAuthenticator
+class UserAuthenticator extends \Nette\Object implements NS\IAuthenticator
 {
   public $database;
-  
-  function __construct(Nette\Database\Context $database)
+
+  public function __construct(\Nette\Database\Context $database)
   {
     $this->database = $database;
   }
-  
-  function authenticate(array $credentials)
+
+  public function authenticate(array $credentials) 
   {
-    list($username, $password) = $credentials;
-    $row = $this->database->table('users')->where('username', $username)->fetch();
+    list($inUsername, $inPassword) = $credentials;
     
-    if (!$row) {
-      throw new NS\AutheticationException('Uživatel nenalezen.');
+    $rowUser = $this->database->table('users')->where('username', $inUsername)->fetch();    
+    
+    if (!$rowUser) {
+      throw new NS\AuthenticationException("Špatné heslo nebo jméno.");
     }
     
-    if (!NS\Passwords::verify($password, $row->password)) {
-      throw new NS\AuthenticationException('Špatné heslo.');
+    $rowHash = $rowUser->hash;
+    if ($rowHash === crypt($inPassword, SignPresenter::$user_salt)) {
+      unset($rowHash);
+      return new NS\Identity($inUsername, $rowUser->rules, $rowUser);
+    } else {
+      throw new NS\AuthenticationException("Špatné heslo nebo jméno.");  
     }
-    
-    return new NS\Identity($row->id, $row->email);
   }
+  
 }

@@ -14,7 +14,10 @@ list($_b, $_g, $_l) = $template->initialize('fe7cb23a44', 'html')
 if (!function_exists($_b->blocks['content'][] = '_lb6da103e15d_content')) { function _lb6da103e15d_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?><h1>Upravit příspěvek</h1>
 
-<?php $_l->tmp = $_control->getComponent("postForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ;
+<div class="standard-form">
+<?php $_l->tmp = $_control->getComponent("postForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
+</div>
+<?php
 }}
 
 //

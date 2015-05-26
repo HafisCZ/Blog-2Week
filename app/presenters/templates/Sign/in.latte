@@ -1,9 +1,29 @@
 {block content}
 
-<h1 n:block=title>Přihlášení</h1>
+<h1 id="none" n:block="title">Přihlášení / Registrace</h1>
 
-{control signInForm}
+<table class="sign">
+  <tr>
+    <td>
+      <h1>Přihlášení</h1>
+    </td>
+    <td>
+      <h1>Zapomenuté heslo</h1>
+    </td>
+    <td>
+      <h1>Registrace</h1>
+    </td>
+  </tr>
+  <tr class="standard-form-2">
+    <td>
+      {control signInForm}
+    </td>
+    <td>
+      {control forgottenForm}
+    </td>
+    <td>
+      {control registrationForm}
+    </td>
+  </tr>
+</table>
 
-<h1>Registrace</h1>
-
-{control registrationForm}

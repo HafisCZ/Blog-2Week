@@ -13,7 +13,12 @@ list($_b, $_g, $_l) = $template->initialize('8252945e59', 'html')
 //
 if (!function_exists($_b->blocks['content'][] = '_lbab1ce86b6b_content')) { function _lbab1ce86b6b_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?><h1>Nový příspěvek</h1>
-<?php $_l->tmp = $_control->getComponent("postForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ;
+
+<div class="standard-form">
+<?php $_l->tmp = $_control->getComponent("postForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
+<div>
+
+<?php
 }}
 
 //

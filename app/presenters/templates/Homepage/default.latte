@@ -1,10 +1,35 @@
 {block content}
   <h1 n:block="title">Můj blog</h1>
-  <h2><a n:href="Post:create" n:if="$user->loggedIn">Přidat nový příspěvek</a></h2>
-  <hr/>
 
   <div n:foreach="$posts as $post" class="post">
-  <div class="date">{$post->created_at|date:'F j, Y'}</div>
-  <h2><a href="{link Post:show $post->id}">{$post->title}</a></h2>
-  <div>{Nette\Utils\Strings::truncate($post->content, 200, ' ...')}</div>
+    <!--@deprecated usage of <table> tag-->
+    <table>
+      <tr>
+          <td rowspan="5" id="post-image" style="{if ($post->link != NULL)}background-image: url({$post->link}){else}background: {App\Presenters\PostPresenter::randomColor()}{/if}">
+          </td>
+        <td id="nd">Titulek:</td>
+        <td><a href="{link Post:show $post->id}">{$post->title}</a></td>
+      </tr>
+      <tr>
+        <td>Autor:</td>
+        <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if}</td>
+      </tr>
+      <tr>
+        <td>Datum:</td>
+        <td>{$post->created_at|date:'F j, Y H:m'}</td>
+      </tr>
+      <tr>
+        <td>Komentáře:</td>
+        <td>{$post->related('comments')->where('post_id', $post->id)->count()}</td>
+      </tr>
+      <tr>
+        <td>Anotace:</td>
+        <td>{Nette\Utils\Strings::truncate($post->subtitle, 250, ' ...')}</td>
+      </tr>      
+    </table>
+
   </div>
+  
+  <h1>RSS čtečka <a style="cursor:default" onclick="getFileContent('rssOutput', 'getRSS.php')">▼</a></h1>
+
+  <div id="rssOutput"></div>

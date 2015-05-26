@@ -13,17 +13,45 @@ list($_b, $_g, $_l) = $template->initialize('6d76583dba', 'html')
 //
 if (!function_exists($_b->blocks['content'][] = '_lb40653099bb_content')) { function _lb40653099bb_content($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ;call_user_func(reset($_b->blocks['title']), $_b, get_defined_vars())  ?>
-  <h2><?php if ($user->loggedIn) { ?><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Post:create"), ENT_COMPAT) ?>
-">Přidat nový příspěvek</a><?php } ?>
-</h2>
-  <hr>
 
 <?php $iterations = 0; foreach ($posts as $post) { ?>  <div class="post">
-  <div class="date"><?php echo Latte\Runtime\Filters::escapeHtml($template->date($post->created_at, 'F j, Y'), ENT_NOQUOTES) ?></div>
-  <h2><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Post:show", array($post->id)), ENT_COMPAT) ?>
-"><?php echo Latte\Runtime\Filters::escapeHtml($post->title, ENT_NOQUOTES) ?></a></h2>
-  <div><?php echo Latte\Runtime\Filters::escapeHtml(Nette\Utils\Strings::truncate($post->content, 200, ' ...'), ENT_NOQUOTES) ?></div>
-  </div><?php $iterations++; } 
+    <!--@deprecated usage of <table> tag-->
+    <table>
+      <tr>
+          <td rowspan="5" id="post-image" style="<?php if (($post->link != NULL)) { ?>
+background-image: url(<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::escapeCss($post->link), ENT_COMPAT) ?>
+)<?php } else { ?>background: <?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::escapeCss(App\Presenters\PostPresenter::randomColor()), ENT_COMPAT) ;} ?>">
+          </td>
+        <td id="nd">Titulek:</td>
+        <td><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Post:show", array($post->id)), ENT_COMPAT) ?>
+"><?php echo Latte\Runtime\Filters::escapeHtml($post->title, ENT_NOQUOTES) ?></a></td>
+      </tr>
+      <tr>
+        <td>Autor:</td>
+        <td><?php if (($post->username == NULL)) { ?>Neznámý<?php } else { ?><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Post:author", array($post->username)), ENT_COMPAT) ?>
+"><?php echo Latte\Runtime\Filters::escapeHtml($post->username, ENT_NOQUOTES) ?>
+</a><?php } ?></td>
+      </tr>
+      <tr>
+        <td>Datum:</td>
+        <td><?php echo Latte\Runtime\Filters::escapeHtml($template->date($post->created_at, 'F j, Y H:m'), ENT_NOQUOTES) ?></td>
+      </tr>
+      <tr>
+        <td>Komentáře:</td>
+        <td><?php echo Latte\Runtime\Filters::escapeHtml($post->related('comments')->where('post_id', $post->id)->count(), ENT_NOQUOTES) ?></td>
+      </tr>
+      <tr>
+        <td>Anotace:</td>
+        <td><?php echo Latte\Runtime\Filters::escapeHtml(Nette\Utils\Strings::truncate($post->subtitle, 250, ' ...'), ENT_NOQUOTES) ?></td>
+      </tr>      
+    </table>
+
+  </div>
+<?php $iterations++; } ?>
+  
+  <h1>RSS čtečka <a style="cursor:default" onclick="getFileContent('rssOutput', 'getRSS.php')">▼</a></h1>
+
+  <div id="rssOutput"></div><?php
 }}
 
 //
