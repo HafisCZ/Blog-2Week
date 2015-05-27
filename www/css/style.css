@@ -248,3 +248,8 @@ h1 {
 .comments table tr td {
   width: 33%;
 }
+#comment {
+  position: absolute;
+  top: 400px;
+  left: 60px;
+}

@@ -22,4 +22,4 @@ session:
 services:
 	- App\Forms\SignFormFactory
 	router: App\RouterFactory::createRouter
-	authenticator: App\Presenters\UserAuthenticator
+	authenticator: App\Models\UserAuthenticator

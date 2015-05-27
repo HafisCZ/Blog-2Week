@@ -9,7 +9,9 @@
     <title>{ifset title}{include title|striptags}{/ifset}</title>
 
     <link rel="stylesheet" href="{$basePath}/css/style.css"/>
-    <link rel="shortcut icon" href="{$basePath}/favicon.ico"/>            
+    <link rel="shortcut icon" href="{$basePath}/favicon.ico"/>    
+    
+    <script type="text/javascript" src="{$basePath}/js/edit.js"></script>        
                  
     {block head}{/block}
     
@@ -27,7 +29,7 @@
           <li style="float: right"><a n:href="Sign:out"><span>Odhlásit</span></a></li>
           <li style="float: right"><a n:href="Sign:settings"><span>Nastavení</span></a></li>
           <li style="float: right"><a href="{link Post:author $user->getId()}"><span>Profil</span></a></li>
-          <li style="float: right" class="menu-text"><span>{$user->getId()}</span></li>
+          <li style="float: right" class="menu-text"><span>{if ($user->getIdentity()->displayname != NULL)}{$user->getIdentity()->displayname}{else}{$user->getId()}{/if}</span></li>
         {else}
           <li style="float: right"><a n:href="Sign:in"><span>Registrace</span></a></li>
           <li style="float: right"><a n:href="Sign:in"><span>Přihlášení</span></a></li>
@@ -43,24 +45,31 @@
                                                                               
 	{block scripts}
 	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-  <script src="{$basePath}/js/nette.ajax.js"></script>
 	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
 	<script src="{$basePath}/js/main.js"></script>
-  <script>
+  <script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
+  <script type="text/javascript">
     $(function () {
       $.nette.init();
-      $('a.no-ajax').off('click.nette');
-    }
-  </script>
-  <script>
+    });
     $(document).ready(function(){
       $("#remove_flash_message").click(function(){
         $("div").remove(".flash");
       });
     });
+    $(document).ready(function(){
+      $("#comment").click(function(){
+        $("p").remove("#comment");
+        $("body").css('color', '#FFFFFF');
+        $("body").css('background', '#FFFFFF');
+        $("h1").css('color', '#FFFFFF');
+        $("h1").css('background', '#FFFFFF');
+        $("nav").css('color', '#FFFFFF');
+        $("nav").css('background', '#FFFFFF');
+      });
+    });
   </script>
   <script src="{$basePath}/js/ajax.js"></script>
-
-	{/block}
+	{/block}                                   
 </body>
 </html>

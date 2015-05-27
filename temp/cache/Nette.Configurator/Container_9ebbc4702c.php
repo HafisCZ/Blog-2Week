@@ -76,7 +76,7 @@ class Container_9ebbc4702c extends Nette\DI\Container
 				1 => array('25_App_Forms_SignFormFactory'),
 			),
 			'Nette\Security\IAuthenticator' => array(1 => array('authenticator')),
-			'App\Presenters\UserAuthenticator' => array(1 => array('authenticator')),
+			'App\Models\UserAuthenticator' => array(1 => array('authenticator')),
 			'App\Presenters\BasePresenter' => array(
 				array(
 					'application.1',
@@ -202,7 +202,7 @@ class Container_9ebbc4702c extends Nette\DI\Container
 			'application.application' => 'Nette\Application\Application',
 			'application.linkGenerator' => 'Nette\Application\LinkGenerator',
 			'application.presenterFactory' => 'Nette\Application\IPresenterFactory',
-			'authenticator' => 'App\Presenters\UserAuthenticator',
+			'authenticator' => 'App\Models\UserAuthenticator',
 			'cache.journal' => 'Nette\Caching\Storages\IJournal',
 			'cache.storage' => 'Nette\Caching\IStorage',
 			'container' => 'Nette\DI\Container',
@@ -409,11 +409,11 @@ class Container_9ebbc4702c extends Nette\DI\Container
 
 
 	/**
-	 * @return App\Presenters\UserAuthenticator
+	 * @return App\Models\UserAuthenticator
 	 */
 	public function createServiceAuthenticator()
 	{
-		$service = new App\Presenters\UserAuthenticator($this->getService('database.default.context'));
+		$service = new App\Models\UserAuthenticator($this->getService('database.default.context'));
 		return $service;
 	}
 

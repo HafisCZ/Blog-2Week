@@ -71,8 +71,9 @@ background-image: url(<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime
 <?php if (($user->loggedIn)) { ?>
             <a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("removeComment", array($comment->id)), ENT_COMPAT) ?>
 ">Odstranit</a>   
-<?php } if (($comment->username == NULL)) { ?>
-            Neznámý
+<?php } if (($comment->username == NULL && $comment->visitor != NULL)) { ?>
+            <?php echo Latte\Runtime\Filters::escapeHtml($comment->visitor, ENT_NOQUOTES) ?>
+
 <?php } else { ?>
             <a href="mailto:<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($comment->email), ENT_COMPAT) ?>
 "><?php echo Latte\Runtime\Filters::escapeHtml($comment->username, ENT_NOQUOTES) ?></a>
@@ -91,12 +92,10 @@ background-image: url(<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime
 <?php $iterations++; } ?>
 </div>
 
-<?php if (($user->isLoggedIn())) { ?>
-  <h1>Přidat komentář</h1>
-    <div class="standard-form">
+<h1>Přidat komentář</h1>
+<div class="standard-form">
 <?php $_l->tmp = $_control->getComponent("commentForm"); if ($_l->tmp instanceof Nette\Application\UI\IRenderable) $_l->tmp->redrawControl(NULL, FALSE); $_l->tmp->render() ?>
-  </div>
-<?php } 
+</div><?php
 }}
 
 //

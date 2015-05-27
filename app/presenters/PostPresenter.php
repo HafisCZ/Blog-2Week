@@ -3,7 +3,8 @@
 namespace App\Presenters;
 
 use Nette, 
-  Nette\Application\UI\Form;
+  Nette\Application\UI\Form,
+  Nette\Utils\Strings;
     
 class PostPresenter extends BasePresenter
 {
@@ -56,8 +57,8 @@ class PostPresenter extends BasePresenter
     $form = new Form;
     
     $identity = $this->getUser()->getIdentity();
-    $form->addText('name', 'Jméno:')->setRequired()->setValue((($this->getUser()->isLoggedIn()) ? $identity->username : NULL))->setAttribute('readonly');
-    $form->addText('email', 'Email:')->setRequired()->setValue((($this->getUser()->isLoggedIn()) ? $identity->email : NULL))->addRule(Form::EMAIL, 'Zadejte platný email.')->setAttribute('readonly');
+    $form->addText('name', 'Jméno:')->setRequired()->setValue((($this->getUser()->isLoggedIn()) ? $identity->username : NULL));
+    $form->addText('email', 'Email:')->setRequired()->setValue((($this->getUser()->isLoggedIn()) ? $identity->email : NULL))->addRule(Form::EMAIL, 'Zadejte platný email.');
     $form->addTextArea('content', 'Komentář:')->setRequired();
     $form->addSubmit('send', 'Zveřejnit komentář');
   
@@ -69,20 +70,23 @@ class PostPresenter extends BasePresenter
   public function commentFormSucceeded($form)
   {
     $values = $form->values;
-    
-    if (!$this->getUser()->isLoggedIn()) {
-      $this->error('Musíte se přihlásit.');
-    }
-  
     $postId = $this->getParameter('postId');
     
-    $this->database->table('comments')->insert(array(
+    $comment = array (
       'post_id' => $postId,
-      'username' => ($this->getUser()->isLoggedIn()) ? $this->getUser()->getIdentity()->username : $values->name,
-      'email' => ($this->getUser()->isLoggedIn()) ? $this->getUser()->getIdentity()->email : $values->email,
       'content' => $values->content,
       'ip' => self::currentIp(),
-      ));
+    );
+    if ($this->getUser()->isLoggedIn()) {
+      $identity = $this->getUser()->getIdentity();
+      $comment['username'] = $identity->username;
+      $comment['email'] = $identity->email;
+    } else {
+      $comment['visitor'] = $values->name;
+      $comment['email'] = $values->email;
+    }
+    
+    $this->database->table('comments')->insert($comment);
     
     $this->flashMessage('Komentář přidán.', 'success');
     $this->redirect('this');
@@ -107,8 +111,19 @@ class PostPresenter extends BasePresenter
   
   public function fulltextSearchFormSucceeded($form) {
     $string = $form->values->s;
+    $depth = $form->values->d;
     
-    $relevant = $this->database->table('posts')->where('title LIKE ?', $string);
+    $relevant = array();
+    
+    $posts = $this->database->table('posts');
+    foreach ($posts as $post) {
+      $string1 = $post['title'];      	
+      $string2 = $post['subtitle'];
+      if (strlen($string) > 0 && (strpos($string1, $string) !== false || ($depth == 1 && $string2 != NULL && strpos($string2, $string) !== false))) {
+        $relevant[] = $post;  
+      }
+    }
+    
     $this->flashMessage("Nalezeno ".count($relevant)." příspěvků");  
     $this->template->relevant = $relevant;
   }
@@ -217,6 +232,7 @@ class PostPresenter extends BasePresenter
     $form = new Form;
     
     $form->addText('s', 'Výraz:');
+    $form->addCheckbox('d', 'Hledat v popisech:');
     $form->addSubmit('send', 'Hledat');
     
     $form->onSuccess[] = array ($this, 'fulltextSearchFormSucceeded');

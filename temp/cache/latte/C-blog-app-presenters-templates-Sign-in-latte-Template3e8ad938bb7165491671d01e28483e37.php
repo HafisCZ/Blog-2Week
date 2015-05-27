@@ -39,6 +39,7 @@ if (!function_exists($_b->blocks['content'][] = '_lb55f0455d8d_content')) { func
   </tr>
 </table>
 
+<p id="comment">△</p>
 <?php
 }}
 

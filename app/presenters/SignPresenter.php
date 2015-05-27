@@ -81,6 +81,7 @@ class SignPresenter extends BasePresenter
     $identity = $this->database->table('users')->where('username', $this->getUser()->getId())->fetch();
     
     // $form->addText('username', 'Jméno:')->setValue($this->getUser()->getId())->addRule(Form::MIN_LENGTH, 'Jméno musí mít alespoň %d znak.', 1);
+    $form->addText('displayname', 'Zobrazené jméno:')->setValue($identity->displayname);
     $form->addText('email', 'Email:')->setValue($identity->email)->addRule(Form::EMAIL, 'Zadejte platný email.');
     $form->addUpload('avatar', 'Avatar:');
     $form->addTextArea('description', 'Popisek:')->setValue($identity->description)->addRule(Form::MAX_LENGTH, 'Popisek je příliš dlouhý', 500);
@@ -112,6 +113,7 @@ class SignPresenter extends BasePresenter
     if (!($values['avatar'] == NULL)) {
       $sessionTable->update(Array('avatar' => $values->avatar));  
     }
+    if ($values->displayname !== $identity->displayname) $sessionTable->update(Array('displayname' => $values->displayname));
     if ($values->email !== $identity->email) $sessionTable->update(Array('email' => $values->email));
     if ($values->description !== $identity->description) $sessionTable->update(Array('description' => $values->description));
     
@@ -126,12 +128,13 @@ class SignPresenter extends BasePresenter
     if ($row && $row->email === $values->email) {
       $newPassword = substr(md5(rand()), 0, 10);
       $this->database->table('users')->where('username', $values->username)->update(Array('hash' => crypt($newPassword, SignPresenter::$user_salt)));
-      $this->flashMessage("".$newPassword);
+      $this->flashMessage('Heslo: '.$newPassword);
+      //mail($values->email, 'Zapomenuté heslo', $newPassword);
       unset($newPassword);
-      //Send an email to user
+      //$this->flashMessage('Heslo odesláno.');
       $this->redirect('Sign:in');
     } else {
-      $form->error("Uživatel nenalezen v databázi");
+      $this->error("Uživatel nenalezen v databázi");
     }
   }
   
@@ -166,7 +169,8 @@ class SignPresenter extends BasePresenter
       $this->database->table('users')->where('username', $currentUser)->update(Array('hash' => $newHash));
       unset($newHash);
     } else {
-      $this->error("Heslo nebylo možné změnit");
+      $this->flashMessage("Heslo nebylo možné změnit");
+      $this->redirect('Homepage:');
     }
     
     $this->flashMessage("Heslo bylo změněno, znovu se přihlašte", 'success');
@@ -185,7 +189,8 @@ class SignPresenter extends BasePresenter
       $acc->delete();
       self::actionOut();  	
     } else {
-      $this->error("Účet nebylo možno smazat.");
+      $this->flashMessage("Účet nebylo možno smazat.");
+      $this->redirect('Homepage:');
     }
     
     $this->flashMessage("Účet byl smazán.", 'success');
@@ -207,6 +212,7 @@ class SignPresenter extends BasePresenter
         'rules' => 0,
         'forward' => $values->forward,
       ));
+      unset($values['password']);
     }
     
     $regMessage = "Registrace byla úspěšná";
@@ -228,6 +234,7 @@ class SignPresenter extends BasePresenter
     } catch (Nette\Security\AuthenticationException $e) {
       $form->addError('Nesprávné jméno či heslo.');
     }
+    unset($values['password']);
   }
 
 	public function actionOut()

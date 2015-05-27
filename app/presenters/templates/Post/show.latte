@@ -50,8 +50,8 @@
           {if ($user->loggedIn)}
             <a n:href="removeComment $comment->id">Odstranit</a>   
           {/if}
-          {if ($comment->username == NULL)}
-            Neznámý
+          {if ($comment->username == NULL && $comment->visitor != NULL)}
+            {$comment->visitor}
           {else}
             <a href="mailto:{$comment->email}">{$comment->username}</a>
           {/if}
@@ -68,9 +68,7 @@
   {/foreach}
 </div>
 
-{if ($user->isLoggedIn())}
-  <h1>Přidat komentář</h1>
-    <div class="standard-form">
-      {control commentForm}
-  </div>
-{/if}
+<h1>Přidat komentář</h1>
+<div class="standard-form">
+  {control commentForm}
+</div>

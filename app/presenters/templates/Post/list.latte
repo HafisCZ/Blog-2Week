@@ -3,18 +3,18 @@
 <h1 n:block="title">Seznam článků</h1>
 
 <form n:name=fulltextSearchForm class="list-search">
-    <label n:name=s>Výraz: <input n:name=s size=50></label><input n:name=send>
+    <label n:name=s>Výraz: <input n:name=s size=50></label><label n:name=d> Hledat v popiscích: <input n:name=d></label> <input n:name=send>
 </form>
 
 <div class="list-list">
   
   {if (isset($relevant) && (count($relevant) !== 0))}
     <div n:foreach="$relevant as $post" class="list-posts">
-      {$post->created_at|date:'F j, Y H:m:s'} - <a href="{link Post:show $post->id}">{$post->title}</a> od <a href="{link Post:author $post->username}">{$post->username}</a>
+      {$post->created_at|date:'F j, Y H:m:s'} - <a href="{link Post:show $post->id}">{$post->title}</a> od {if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if}
     </div>
   {else}
     <div n:foreach="$posts as $post" class="list-posts">
-      {$post->created_at|date:'F j, Y H:m:s'} - <a href="{link Post:show $post->id}">{$post->title}</a> od <a href="{link Post:author $post->username}">{$post->username}</a>
+      {$post->created_at|date:'F j, Y H:m:s'} - <a href="{link Post:show $post->id}">{$post->title}</a> od {if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if}
     </div>
   {/if}
   

@@ -20,24 +20,31 @@ if (!function_exists($_b->blocks['head'][] = '_lbb95ee4daf4_head')) { function _
 //
 if (!function_exists($_b->blocks['scripts'][] = '_lbac0284ea02_scripts')) { function _lbac0284ea02_scripts($_b, $_args) { foreach ($_args as $__k => $__v) $$__k = $__v
 ?>	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-  <script src="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/js/nette.ajax.js"></script>
 	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
 	<script src="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/js/main.js"></script>
-  <script>
+  <script type="text/javascript" src="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/js/nette.ajax.js"></script>
+  <script type="text/javascript">
     $(function () {
       $.nette.init();
-      $('a.no-ajax').off('click.nette');
-    }
-  </script>
-  <script>
+    });
     $(document).ready(function(){
       $("#remove_flash_message").click(function(){
         $("div").remove(".flash");
       });
     });
+    $(document).ready(function(){
+      $("#comment").click(function(){
+        $("p").remove("#comment");
+        $("body").css('color', '#FFFFFF');
+        $("body").css('background', '#FFFFFF');
+        $("h1").css('color', '#FFFFFF');
+        $("h1").css('background', '#FFFFFF');
+        $("nav").css('color', '#FFFFFF');
+        $("nav").css('background', '#FFFFFF');
+      });
+    });
   </script>
   <script src="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/js/ajax.js"></script>
-
 <?php
 }}
 
@@ -73,7 +80,9 @@ if (empty($_l->extends) && !empty($_control->snippetMode)) {
     <title><?php if (isset($_b->blocks["title"])) { ob_start(); Latte\Macros\BlockMacrosRuntime::callBlock($_b, 'title', $template->getParameters()); echo $template->striptags(ob_get_clean()) ;} ?></title>
 
     <link rel="stylesheet" href="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/css/style.css">
-    <link rel="shortcut icon" href="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/favicon.ico">            
+    <link rel="shortcut icon" href="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/favicon.ico">    
+    
+    <script type="text/javascript" src="<?php echo Latte\Runtime\Filters::escapeHtml(Latte\Runtime\Filters::safeUrl($basePath), ENT_COMPAT) ?>/js/edit.js"></script>        
                  
     <?php if ($_l->extends) { ob_end_clean(); return $template->renderChildTemplate($_l->extends, get_defined_vars()); }
 call_user_func(reset($_b->blocks['head']), $_b, get_defined_vars())  ?>
@@ -99,7 +108,7 @@ call_user_func(reset($_b->blocks['head']), $_b, get_defined_vars())  ?>
           <li style="float: right"><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Sign:settings"), ENT_COMPAT) ?>
 "><span>Nastavení</span></a></li>
           <li style="float: right"><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Post:author", array($user->getId())), ENT_COMPAT) ?>"><span>Profil</span></a></li>
-          <li style="float: right" class="menu-text"><span><?php echo Latte\Runtime\Filters::escapeHtml($user->getId(), ENT_NOQUOTES) ?></span></li>
+          <li style="float: right" class="menu-text"><span><?php if (($user->getIdentity()->displayname != NULL)) { echo Latte\Runtime\Filters::escapeHtml($user->getIdentity()->displayname, ENT_NOQUOTES) ;} else { echo Latte\Runtime\Filters::escapeHtml($user->getId(), ENT_NOQUOTES) ;} ?></span></li>
 <?php } else { ?>
           <li style="float: right"><a href="<?php echo Latte\Runtime\Filters::escapeHtml($_control->link("Sign:in"), ENT_COMPAT) ?>
 "><span>Registrace</span></a></li>
