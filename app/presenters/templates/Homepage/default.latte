@@ -12,7 +12,7 @@
       </tr>
       <tr>
         <td>Autor:</td>
-        <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if}</td>
+        <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if} {if ($post->editor !== NULL)}(Upravil: <a href="{link Post:author $post->editor}">{$post->editor}</a>){/if}</td>
       </tr>
       <tr>
         <td>Datum:</td>
@@ -20,7 +20,7 @@
       </tr>
       <tr>
         <td>Komentáře:</td>
-        <td>{$post->related('comments')->where('post_id', $post->id)->count()}</td>
+        <td>{$post->related('comments')->where('post_id = ?', $post->id)->count()}</td>
       </tr>
       <tr>
         <td>Anotace:</td>

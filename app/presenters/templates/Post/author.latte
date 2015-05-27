@@ -20,7 +20,7 @@
           {if ($author->description == NULL)}
             Autor nepřidal žádný popisek ...
           {else}
-            {$author->description}
+            {$author->description |noescape}
           {/if} 
       </td>
     </tr>
@@ -29,7 +29,10 @@
   <h1>Příspěvky:</h1>
   <div class="list-list">
     <div n:foreach="$posts as $post" class="list-posts">
-      <div>{$post->created_at|date:'F j, Y H:m:s'} <a href="{link Post:show $post->id}">{$post->title}</a></div>
+      <div>{$post->created_at|date:'F j, Y H:m:s'}  <a href="{link Post:show $post->id}">{$post->title}</a></div>
+    </div>
+    <div n:foreach="$edited as $post" class="list-posts" style="background:#F0E1B1">
+      <div>{$post->created_at|date:'F j, Y H:m:s'} Editace <a href="{link Post:show $post->id}">{$post->title}</a></div>
     </div>
   </div>
   

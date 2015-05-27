@@ -25,7 +25,7 @@
     </tr>
     <tr>
       <td>Autor:</td>
-      <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if}</td>
+      <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if} {if ($post->editor !== NULL)}(Upravil: <a href="{link Post:author $post->editor}">{$post->editor}</a>){/if}</td>
     </tr>
     <tr>
       <td>Datum:</td>
@@ -34,7 +34,7 @@
     <tr>
       <td colspan="3">
         <div class="post-div">
-          {$post->content}
+          {$post->content |noescape}
         </div>
       </td>
     </tr>      

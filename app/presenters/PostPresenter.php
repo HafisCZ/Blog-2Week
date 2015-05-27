@@ -37,9 +37,12 @@ class PostPresenter extends BasePresenter
       $this->error('Autor nenalezen.');
     }
     
+    $this->template->edited = $this->database->table('posts')->where('editor = ?', $username);
+    
     $this->template->author = $author;
-    $this->template->posts = $author->related('posts')->order('created_at');
-    $this->template->comments = $author->related('comments')->order('created_at');
+    $this->template->posts = $author->related('posts')->order('created_at DESC');
+    $this->template->comments = $author->related('comments')->order('created_at DESC');
+    
   }
   
   public function currentIp()
@@ -101,7 +104,7 @@ class PostPresenter extends BasePresenter
     $form->addText('subtitle', 'Podtitulek:')->addRule(Form::MAX_LENGTH, 'Podtitulek je příliš dlouhý', 250);
     $form->addText('username', 'Autor')->setRequired()->setValue((($this->getUser()->isLoggedIn()) ? $this->getUser()->getId() : NULL))->setAttribute('readonly');
     $form->addUpload('link', 'Obrázek:');     
-    $form->addTextArea('content', 'Obsah:')->setRequired()->addRule(Form::MAX_LENGTH, 'Komentář je příliš dlouhý.', 500);
+    $form->addTextArea('content', 'Obsah:')->setRequired();//->addRule(Form::MAX_LENGTH, 'Obsah je příliš dlouhý.', 1500);
     $form->addSubmit('send','Publikovat');
     
     $form->onSuccess[] = array($this, 'postFormSucceeded');
@@ -156,6 +159,8 @@ class PostPresenter extends BasePresenter
       if ($values['link'] == NULL) {
         unset($values['link']);
       }
+      unset($values['username']);
+      $values['editor'] = $this->getUser()->getIdentity()->username;
       $post = $this->database->table('posts')->get($postId);
       $post->update($values);
     } else {      
@@ -180,17 +185,25 @@ class PostPresenter extends BasePresenter
       $this->redirect('Sign:in');	
     }
   
-    $post = $this->database->table('posts')->where('id = ?', $postId)->fetch()->toArray();
+    $post = $this->database->table('posts')->where('id = ?', $postId)->fetch();
     
     if (!$post) {
       $this->error('Příspěvek nebyl nalezen');
-    }
+    }    
     
-    if ($post['username'] == NULL) {
-      $post['username'] = 'Neznámý uživatel';
-    }
+    $identity = $this->getUser()->getIdentity();
+    if (($identity->username === $post->username) || ($identity->rules == '1')) {
+      $post->toArray();
+      
+      if ($post['username'] == NULL) {
+        $post['username'] = 'Neznámý uživatel';
+      }
     
-    $this['postForm']->setDefaults($post);
+      $this['postForm']->setDefaults($post);	
+    } else {
+       $this->flashMessage('K provedení operace nemáte dostatečná oprávnění !');
+       $this->redirect('Homepage:');
+    }
   }
   
   private function sendNotifications()
@@ -205,12 +218,19 @@ class PostPresenter extends BasePresenter
     }
     
     $post = $this->database->table('posts')->where('id = ?', $postId)->fetch();
-    $post->delete();
     
-    self::makeFeed($this->database);
+    $identity = $this->getUser()->getIdentity();
+    if ($identity->username === $post->username || $identity->rules == '1') {
+      $post->delete();
     
-    $this->flashMessage("Příspěvek smazán.", 'success');  
-    $this->redirect('Homepage:');
+      self::makeFeed($this->database);
+      
+      $this->flashMessage("Příspěvek smazán.", 'success');  
+      $this->redirect('Homepage:');	
+    } else {
+      $this->flashMessage('K provedení operace nemáte dostatečná oprávnění !');
+      $this->redirect('Homepage:');
+    }
   }
   
   public function actionRemoveComment($commentId)
