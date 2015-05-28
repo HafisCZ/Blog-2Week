@@ -3,7 +3,8 @@
 namespace App\Presenters;
 
 use Nette,
-	Nette\Application\UI\Form;
+	Nette\Application\UI\Form,
+  Nette\Utils\Random;
 
 class SignPresenter extends BasePresenter
 {
@@ -100,10 +101,11 @@ class SignPresenter extends BasePresenter
     
     $imageLink;
     if ($values['avatar']->isOk()) {
+      $rnd = Random::generate(10);
       $filename = $values->avatar->getSanitizedName();
       $targetPath = $this->context->parameters['wwwDir'] . '\\images';
-      $values['avatar']->move($targetPath . "\\" . $filename);
-      $imageLink = PostPresenter::_WEB_ . "/images/" . $filename;  
+      $values['avatar']->move($targetPath . "\\" . $rnd . "_" . $filename);
+      $imageLink = PostPresenter::_WEB_ . "/images/" . $rnd  . "_" . $filename;  
     }
     
     $identity = $this->getUser()->getIdentity();
@@ -112,10 +114,20 @@ class SignPresenter extends BasePresenter
     
     if (!($values['avatar'] == NULL)) {
       $sessionTable->update(Array('avatar' => $values->avatar));  
+      $identity->avatar = $values->avatar;
     }
-    if ($values->displayname !== $identity->displayname) $sessionTable->update(Array('displayname' => $values->displayname));
-    if ($values->email !== $identity->email) $sessionTable->update(Array('email' => $values->email));
-    if ($values->description !== $identity->description) $sessionTable->update(Array('description' => $values->description));
+    if ($values->displayname !== $identity->displayname) {
+      $sessionTable->update(Array('displayname' => $values->displayname));
+      $identity->displayname = $values->displayname;
+    }
+    if ($values->email !== $identity->email) {
+      $sessionTable->update(Array('email' => $values->email));
+      $identity->email = $values->email;
+    }
+    if ($values->description !== $identity->description) {
+      $sessionTable->update(Array('description' => $values->description));
+      $identity->description = $values->description;
+    }
     
     $this->flashMessage("Nastavení účtu bylo uloženo.", 'success');
   }
@@ -126,7 +138,7 @@ class SignPresenter extends BasePresenter
     
     $row = $this->database->table('users')->where('username', $values->username)->fetch();
     if ($row && $row->email === $values->email) {
-      $newPassword = substr(md5(rand()), 0, 10);
+      $newPassword = substr(md5(rand()), 0, 15);
       $this->database->table('users')->where('username', $values->username)->update(Array('hash' => crypt($newPassword, SignPresenter::$user_salt)));
       $this->flashMessage('Heslo: '.$newPassword);
       //mail($values->email, 'Zapomenuté heslo', $newPassword);
@@ -134,7 +146,7 @@ class SignPresenter extends BasePresenter
       //$this->flashMessage('Heslo odesláno.');
       $this->redirect('Sign:in');
     } else {
-      $this->error("Uživatel nenalezen v databázi");
+      $form->addError("Uživatel nenalezen v databázi");
     }
   }
   
@@ -168,13 +180,11 @@ class SignPresenter extends BasePresenter
       $newHash = crypt($values->newPassword, SignPresenter::$user_salt);      
       $this->database->table('users')->where('username', $currentUser)->update(Array('hash' => $newHash));
       unset($newHash);
+      $this->flashMessage("Heslo bylo změněno, znovu se přihlašte", 'success');
+      $this->redirect('Sign:out');
     } else {
-      $this->flashMessage("Heslo nebylo možné změnit");
-      $this->redirect('Homepage:');
+      $form->addError("Heslo nebylo možné změnit");
     }
-    
-    $this->flashMessage("Heslo bylo změněno, znovu se přihlašte", 'success');
-    $this->redirect('Sign:out');
   }
   
   public function deleteAccountFormSucceeded($form)
@@ -188,13 +198,11 @@ class SignPresenter extends BasePresenter
       $acc = $this->database->table('users')->where('username = ?', $currentUser)->fetch();
       $acc->delete();
       self::actionOut();  	
-    } else {
-      $this->flashMessage("Účet nebylo možno smazat.");
+      $this->flashMessage("Účet byl smazán.", 'success');
       $this->redirect('Homepage:');
+    } else {
+      $form->addError("Účet nebylo možno smazat.");
     }
-    
-    $this->flashMessage("Účet byl smazán.", 'success');
-    $this->redirect('Homepage:');
   }
   
   public function registrationFormSucceeded($form)

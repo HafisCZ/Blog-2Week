@@ -17,3 +17,7 @@
 <div class="standard-form">
   {control deleteAccountForm}
 </div>
+
+{if (($user->loggedIn) && ($user->getIdentity()->rules === 1))}
+  <h1 style="background:#5C1011"><a n:href="Post:populate" style="color:#FFFFFF; text-decoration:none">Populate</a></h1>
+{/if}

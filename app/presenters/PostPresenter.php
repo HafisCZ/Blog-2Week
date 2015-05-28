@@ -4,12 +4,15 @@ namespace App\Presenters;
 
 use Nette, 
   Nette\Application\UI\Form,
-  Nette\Utils\Strings;
+  Nette\Utils\Strings,
+  Nette\Utils\Random;
     
 class PostPresenter extends BasePresenter
 {
 
   private $database;
+  
+  //{if ($user->getIdentity()->avatar != NULL}<img src="{$user->getIdentity()->avatar}"/>{/if}
   
   const _DEFAULT_AVATAR_ = "http://localhost/www/img/default_av.png";
   const _WEB_ = "http://localhost/www"; 
@@ -131,6 +134,38 @@ class PostPresenter extends BasePresenter
     $this->template->relevant = $relevant;
   }
   
+  public function actionPopulate()
+  {
+    if (!($this->getUser()->isLoggedIn() && ($this->getUser()->getIdentity()->rules === 1))) {
+      $this->error('User doesnt have required permissions for this task to execute'); 	
+    }
+    $database = $this->database;
+    $count = 5;
+  
+    for ($i = 0; $i <= $count ; $i++) {
+      $commentCount = Random::generate('1', '0-5'); 
+      $postTitle = Random::generate('15');
+      $post = $database->table('posts')->insert(array(
+        'title' => $postTitle,
+        'username' => NULL,
+        'subtitle' => Random::generate('35'),
+        'content' => Random::generate('200'),
+      ));
+      $id = $database->table('posts')->where('title = ?', $postTitle)->fetch()->id;
+      for ($y = 0; $y <= $commentCount; $y++) {
+        $commentEmail = Random::generate(8, 'a-z') . "@text.tx";  
+        $comment = $database->table('comments')->insert(array(
+          'post_id' => $id,
+          'visitor' => Random::generate(8),
+          'email' => Random::generate(5),
+          'content' => Random::generate('100'),
+        ));	
+      }	
+    }
+    $this->flashMessage('Task completed');    
+    $this->redirect('Homepage:');
+  }
+  
   public function postFormSucceeded($form, $values)
   {
     if (!$this->getUser()->isLoggedIn()) {
@@ -141,10 +176,11 @@ class PostPresenter extends BasePresenter
     
     $imageLink;
     if ($values['link']->isOk()) {
+      $rnd = Random::generate(10);
       $filename = $values->link->getSanitizedName();
       $targetPath = $this->context->parameters['wwwDir'] . '\\images';
-      $values['link']->move($targetPath . "\\" . $filename );
-      $imageLink = PostPresenter::_WEB_ . "/images/" . $filename;   
+      $values['link']->move($targetPath . "\\" . $rnd  . "_" . $filename );
+      $imageLink = PostPresenter::_WEB_ . "/images/". $rnd  . "_" . $filename;   
     }
     
     $values['ip'] = self::currentIp();
@@ -168,7 +204,6 @@ class PostPresenter extends BasePresenter
     }
     
     self::makeFeed($this->database);
-    self::sendNotifications();
     
     $this->flashMessage("Příspěvek publikován.", 'success');  
     $this->redirect('show', $post->id);
@@ -179,36 +214,28 @@ class PostPresenter extends BasePresenter
     $this->template->posts = $this->database->table('posts')->order('created_at DESC');  
   }
   
+  public function actionPop()
+  {
+    self::populate( $this->database, 5);
+  }
+  
   public function actionEdit($postId)
   {
     if (!$this->getUser()->isLoggedIn()) {
       $this->redirect('Sign:in');	
     }
   
-    $post = $this->database->table('posts')->where('id = ?', $postId)->fetch();
+    $post = $this->database->table('posts')->where('id = ?', $postId)->fetch()->toArray();
     
     if (!$post) {
       $this->error('Příspěvek nebyl nalezen');
     }    
-    
-    $identity = $this->getUser()->getIdentity();
-    if (($identity->username === $post->username) || ($identity->rules == '1')) {
-      $post->toArray();
       
-      if ($post['username'] == NULL) {
-        $post['username'] = 'Neznámý uživatel';
-      }
-    
-      $this['postForm']->setDefaults($post);	
-    } else {
-       $this->flashMessage('K provedení operace nemáte dostatečná oprávnění !');
-       $this->redirect('Homepage:');
+    if ($post['username'] == NULL) {
+      $post['username'] = 'Neznámý uživatel';
     }
-  }
-  
-  private function sendNotifications()
-  {
     
+    $this['postForm']->setDefaults($post);	
   }
   
   public function actionRemove($postId)
@@ -260,7 +287,7 @@ class PostPresenter extends BasePresenter
   }
   
   public static function makeFeed($database) {
-    $posts = $database->table('posts')->order('created_at DESC')->limit(3);
+    $posts = $database->table('posts')->order('created_at DESC')->limit(5);
     
     if (count($posts) == 0) {
       echo ("No posts available for Rss feed creation !");
@@ -287,8 +314,6 @@ class PostPresenter extends BasePresenter
   
   public static function randomColor()
   {
-    $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
-    $color = '#'.$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
-    return $color;
+    return "#" . Random::generate('6', '0-9a-f');
   }
 }

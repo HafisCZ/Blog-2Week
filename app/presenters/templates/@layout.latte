@@ -24,7 +24,7 @@
         <li><a n:href="Homepage:"><span>Úvodní strana</span></a></li>
         <li><a n:href="Post:create" n:if="$user->loggedIn"><span>Přidat příspěvek</span></a></li>
         <li><a n:href="Post:list"><span>Seznam článků</span></a></li>
-        <li><a type="application/rss+xml" href="{$basePath}/feed.xml"><span>RSS feed</span></a></li>
+        <li><a type="application/rss+xml" href="{$basePath}/feed.xml" style="background-image: {$basePath}/img/rss.png"><span>RSS feed</span></a></li>
         {if ($user->loggedIn)}
           <li style="float: right"><a n:href="Sign:out"><span>Odhlásit</span></a></li>
           <li style="float: right"><a n:href="Sign:settings"><span>Nastavení</span></a></li>

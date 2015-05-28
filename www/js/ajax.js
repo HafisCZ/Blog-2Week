@@ -12,7 +12,3 @@ function getFileContent(container, file) {
   xmlhttp.open("GET", file,true);
   xmlhttp.send();
 }
-
-function editComment(commentId) {
-
-}

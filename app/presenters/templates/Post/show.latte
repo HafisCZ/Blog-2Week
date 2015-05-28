@@ -15,7 +15,7 @@
 <div class="post">
   <table>
     <tr>
-      <td rowspan="4" id="post-image-2" style="{if ($post->link != NULL)}background-image: url({$post->link}){else}background: {App\Presenters\PostPresenter::randomColor()}{/if}"></td>
+      <td href="{$post->link}" rowspan="4" id="post-image-2" style="{if ($post->link != NULL)}background-image: url({$post->link}){else}background: {App\Presenters\PostPresenter::randomColor()|noescape}{/if}">{if ($post->link != null)}<a href="{$post->link}">▒▒</a>{/if}</td>
       <td id="nd">Titulek:</td>
       <td>{$post->title}</td>
     </tr>
@@ -25,7 +25,7 @@
     </tr>
     <tr>
       <td>Autor:</td>
-      <td>{if ($post->username == NULL)}Neznámý{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if} {if ($post->editor !== NULL)}(Upravil: <a href="{link Post:author $post->editor}">{$post->editor}</a>){/if}</td>
+      <td>{if ($post->username == NULL)}Neznámý uživatel{else}<a href="{link Post:author $post->username}">{$post->username}</a>{/if} {if ($post->editor !== NULL)}(Upravil: <a href="{link Post:author $post->editor}">{$post->editor}</a>){/if}</td>
     </tr>
     <tr>
       <td>Datum:</td>
@@ -51,7 +51,7 @@
             <a n:href="removeComment $comment->id">Odstranit</a>   
           {/if}
           {if ($comment->username == NULL && $comment->visitor != NULL)}
-            {$comment->visitor}
+            Neregistrovaný účet - <a href="mailto:{$comment->email}">{$comment->visitor}</a>
           {else}
             <a href="mailto:{$comment->email}">{$comment->username}</a>
           {/if}
