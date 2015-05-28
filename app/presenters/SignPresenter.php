@@ -4,7 +4,9 @@ namespace App\Presenters;
 
 use Nette,
 	Nette\Application\UI\Form,
-  Nette\Utils\Random;
+  Nette\Utils\Random,
+  Nette\Mail\Message,
+  Nette\Mail\SendmailMailer;
 
 class SignPresenter extends BasePresenter
 {
@@ -139,9 +141,9 @@ class SignPresenter extends BasePresenter
     $row = $this->database->table('users')->where('username', $values->username)->fetch();
     if ($row && $row->email === $values->email) {
       $newPassword = substr(md5(rand()), 0, 15);
-      $this->database->table('users')->where('username', $values->username)->update(Array('hash' => crypt($newPassword, SignPresenter::$user_salt)));
+      $row->update(Array('hash' => crypt($newPassword, SignPresenter::$user_salt)));
       $this->flashMessage('Heslo: '.$newPassword);
-      //mail($values->email, 'Zapomenuté heslo', $newPassword);
+      //self::sendMessage($row->email, 'Password Recovery Code', $newPassword);
       unset($newPassword);
       //$this->flashMessage('Heslo odesláno.');
       $this->redirect('Sign:in');
@@ -205,6 +207,14 @@ class SignPresenter extends BasePresenter
     }
   }
   
+  public function sendMessage($to, $title, $message)
+  {
+    $mail = new Message;
+    $mail->setFrom('pasw@localblog.net', 'Password Recovery')->addTo($to)->setSubject($title)->setBody($message);
+    $mailer = new SendmailMailer;
+    $mailer->send($mail);
+  }
+  
   public function registrationFormSucceeded($form)
   {
     $values = $form->values;
@@ -237,7 +247,8 @@ class SignPresenter extends BasePresenter
     
     try {
       $this->getUser()->login($values->username, $values->password);
-      $this->getUser()->setExpiration(0, (($values->remember) ? FALSE : TRUE));
+      ini_set('session.gc_maxlifetime', 43201*60);
+      $this->getUser()->setExpiration((($values->remember) ? '43200 minutes' : 0));
       $this->redirect('Homepage:'); 
     } catch (Nette\Security\AuthenticationException $e) {
       $form->addError('Nesprávné jméno či heslo.');

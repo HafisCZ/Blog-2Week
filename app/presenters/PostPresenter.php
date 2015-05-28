@@ -137,7 +137,7 @@ class PostPresenter extends BasePresenter
   public function actionPopulate()
   {
     if (!($this->getUser()->isLoggedIn() && ($this->getUser()->getIdentity()->rules === 1))) {
-      $this->error('User doesnt have required permissions for this task to execute'); 	
+      $this->flashMessage('Nemáte dostatečná oprávnění'); 	
     }
     $database = $this->database;
     $count = 5;
@@ -280,7 +280,7 @@ class PostPresenter extends BasePresenter
     
     $form->addText('s', 'Výraz:');
     $form->addCheckbox('d', 'Hledat v popisech:');
-    $form->addSubmit('send', 'Hledat');
+    $form->addSubmit('send', 'Hledat');                                          
     
     $form->onSuccess[] = array ($this, 'fulltextSearchFormSucceeded');
     return $form;
@@ -288,28 +288,16 @@ class PostPresenter extends BasePresenter
   
   public static function makeFeed($database) {
     $posts = $database->table('posts')->order('created_at DESC')->limit(5);
-    
-    if (count($posts) == 0) {
-      echo ("No posts available for Rss feed creation !");
-      return;
-    }
-    
+
     $feed = fopen("feed.xml", "w");
-    fwrite($feed, "<?xml version='1.0' encoding='UTF-8'?>");
-    fwrite($feed, "<rss version='2.0'>");
-    fwrite($feed, "<channel>");
-    fwrite($feed, "<title>Můj blog</title>");
-    fwrite($feed, "<link>http://localhost/www/</link>");
-    fwrite($feed, "<description>Nové příspěvky</description>");
+    $feedHeader = "<?xml version='1.0' encoding='UTF-8'?><rss version='2.0'><channel><title>Můj blog</title><link>" . self::_WEB_ ."</link><description>Nové příspěvky</description>";
+    fwrite($feed, $feedHeader);
     foreach ($posts as $post) {
-      fwrite($feed, "<item>");
-      fwrite($feed, "<title>" . $post->title . "</title>");
-      fwrite($feed, "<link>" . self::_WEB_ . "/post/show?postId=" . $post->id . "</link>");
-      fwrite($feed, "<description>" . $post->subtitle . "</description>");
-      fwrite($feed, "</item>");
+      $feedPost = "<item><title>" . $post->title . "</title><link>" . self::_WEB_ . "/post/show?postId=" . $post->id . "</link><description>" . $post->subtitle . "</description></item>";
+      fwrite($feed, $feedPost);
     }
-    fwrite($feed, "</channel>");
-    fwrite($feed, "</rss>");
+    $feedBottom = "</channel></rss>";
+    fwrite($feed, $feedBottom);
   }
   
   public static function randomColor()
